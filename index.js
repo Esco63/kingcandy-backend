@@ -25,6 +25,39 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+// Tabellen erstellen (einmalig beim Start)
+const createTables = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role VARCHAR(50) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Tabelle "users" erstellt oder existiert bereits.');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        sku VARCHAR(50) UNIQUE NOT NULL,
+        quantity INTEGER NOT NULL DEFAULT 0,
+        price DECIMAL(10,2) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✅ Tabelle "products" erstellt oder existiert bereits.');
+  } catch (err) {
+    console.error('❌ Fehler beim Erstellen der Tabellen:', err);
+  }
+};
+
+createTables(); // <-- am Ende des Blocks
+
+
 // ✅ Test-Route
 app.get('/', (req, res) => {
   res.send('Warenwirtschaftssystem API läuft!');
