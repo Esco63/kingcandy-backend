@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 
 // ✅ CORS korrekt konfiguriert
 app.use(cors({
-  origin: 'https://kingcandy-wws-front1.vercel.app',
+  origin: 'https://kingcandy-wws-frontendv2.vercel.app',
   credentials: true
 }));
 
