@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -9,9 +8,15 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+// ✅ CORS korrekt konfiguriert
+app.use(cors({
+  origin: 'https://kingcandy-wws-front1.vercel.app',
+  credentials: true
+}));
+
 app.use(express.json());
 
+// ✅ PostgreSQL-Verbindung
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -20,10 +25,12 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+// ✅ Test-Route
 app.get('/', (req, res) => {
   res.send('Warenwirtschaftssystem API läuft!');
 });
 
+// ✅ Benutzer registrieren
 app.post('/register', async (req, res) => {
   const { username, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,6 +45,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// ✅ Benutzer-Login
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -52,13 +60,19 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Ungültige Anmeldedaten' });
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     res.json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// ✅ Server starten
 app.listen(port, () => {
   console.log(`Server läuft auf Port ${port}`);
 });
